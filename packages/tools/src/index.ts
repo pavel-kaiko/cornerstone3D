@@ -55,6 +55,7 @@ import {
   SphereScissorsTool,
   RectangleROIThresholdTool,
   RectangleROIStartEndThresholdTool,
+  CircleROIStartEndThresholdTool,
   SegmentationDisplayTool,
   BrushTool,
   AngleTool,
@@ -69,6 +70,7 @@ import {
   OrientationMarkerTool,
   OverlayGridTool,
   SegmentationIntersectionTool,
+  EraserTool,
   SegmentSelectTool,
   LabelmapThresholdPreview,
 } from './tools';
@@ -130,6 +132,7 @@ export {
   ReferenceCursors,
   ReferenceLines,
   ScaleOverlayTool,
+  EraserTool,
 
   // Segmentation Display
   SegmentationDisplayTool,
@@ -140,6 +143,7 @@ export {
   SphereScissorsTool,
   RectangleROIThresholdTool,
   RectangleROIStartEndThresholdTool,
+  CircleROIStartEndThresholdTool,
   BrushTool,
   OrientationMarkerTool,
   SegmentSelectTool,
