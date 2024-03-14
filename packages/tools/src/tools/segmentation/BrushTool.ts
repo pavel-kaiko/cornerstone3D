@@ -113,7 +113,7 @@ class BrushTool extends BaseTool {
         },
         defaultStrategy: 'FILL_INSIDE_CIRCLE',
         activeStrategy: 'FILL_INSIDE_CIRCLE',
-        brushSize: 25,
+        brushSize: 1000,
         preview: {
           // Have to enable the preview to use this
           enabled: false,
@@ -344,7 +344,7 @@ class BrushTool extends BaseTool {
     }
   };
 
-  previewCallback = () => {
+  public previewCallback = () => {
     if (this._previewData.preview) {
       return;
     }

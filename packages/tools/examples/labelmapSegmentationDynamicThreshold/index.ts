@@ -189,7 +189,7 @@ thresholdOptions.set('CT Bone: (200, 1000)', {
   isDynamic: false,
 });
 
-const defaultThresholdOption = [...thresholdOptions.keys()][2];
+const defaultThresholdOption = [...thresholdOptions.keys()][5];
 
 addDropdownToToolbar({
   options: {
@@ -211,8 +211,8 @@ addDropdownToToolbar({
 
 addSliderToToolbar({
   title: 'Brush Size',
-  range: [5, 50],
-  defaultValue: 25,
+  range: [200, 1000],
+  defaultValue: 200,
   onSelectedValueChange: (valueAsStringOrNumber) => {
     const value = Number(valueAsStringOrNumber);
     segmentationUtils.setBrushSizeForToolGroup(toolGroupId, value);
@@ -369,7 +369,7 @@ async function run() {
       activeStrategy: brushStrategies.ThresholdCircle,
       preview,
       strategySpecificConfiguration: {
-        useCenterSegmentIndex: true,
+        useCenterSegmentIndex: false,
         THRESHOLD: { ...thresholdArgs },
       },
     }
