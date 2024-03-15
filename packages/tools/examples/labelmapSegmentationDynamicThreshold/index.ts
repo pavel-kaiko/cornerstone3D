@@ -6,6 +6,7 @@ import {
   volumeLoader,
   ProgressiveRetrieveImages,
   utilities,
+  getEnabledElement,
 } from '@cornerstonejs/core';
 import {
   initDemo,
@@ -18,6 +19,8 @@ import {
   addButtonToToolbar,
 } from '../../../../utils/demo/helpers';
 import * as cornerstoneTools from '@cornerstonejs/tools';
+import { StrategyCallbacks } from '../../src/enums';
+import { hideElementCursor } from '../../src/cursors/elementCursor';
 
 // This is for debugging purposes
 console.warn(
@@ -206,6 +209,15 @@ addDropdownToToolbar({
       thresholdArgs.threshold,
       thresholdArgs
     );
+
+    if (
+      name === [...thresholdOptions.keys()][5] ||
+      name === [...thresholdOptions.keys()][6]
+    ) {
+      console.log('thresholdArgs', thresholdArgs);
+      console.log('name', name);
+      activatePreviewWithoutHovering();
+    }
   },
 });
 
@@ -449,31 +461,31 @@ async function run() {
         background: <Types.Point3>[0, 0, 0],
       },
     },
-    {
-      viewportId: viewportId2,
-      type: ViewportType.ORTHOGRAPHIC,
-      element: element2,
-      defaultOptions: {
-        orientation: Enums.OrientationAxis.SAGITTAL,
-        background: <Types.Point3>[0, 0, 0],
-      },
-    },
-    {
-      viewportId: viewportId3,
-      type: ViewportType.ORTHOGRAPHIC,
-      element: element3,
-      defaultOptions: {
-        orientation: Enums.OrientationAxis.CORONAL,
-        background: <Types.Point3>[0, 0, 0],
-      },
-    },
+    // {
+    //   viewportId: viewportId2,
+    //   type: ViewportType.ORTHOGRAPHIC,
+    //   element: element2,
+    //   defaultOptions: {
+    //     orientation: Enums.OrientationAxis.SAGITTAL,
+    //     background: <Types.Point3>[0, 0, 0],
+    //   },
+    // },
+    // {
+    //   viewportId: viewportId3,
+    //   type: ViewportType.ORTHOGRAPHIC,
+    //   element: element3,
+    //   defaultOptions: {
+    //     orientation: Enums.OrientationAxis.CORONAL,
+    //     background: <Types.Point3>[0, 0, 0],
+    //   },
+    // },
   ];
 
   renderingEngine.setViewports(viewportInputArray);
 
   toolGroup.addViewport(viewportId1, renderingEngineId);
-  toolGroup.addViewport(viewportId2, renderingEngineId);
-  toolGroup.addViewport(viewportId3, renderingEngineId);
+  // toolGroup.addViewport(viewportId2, renderingEngineId);
+  // toolGroup.addViewport(viewportId3, renderingEngineId);
 
   // Set the volume to load
   volume.load();
@@ -482,7 +494,11 @@ async function run() {
   await setVolumesForViewports(
     renderingEngine,
     [{ volumeId, callback: setCtTransferFunctionForVolumeActor }],
-    [viewportId1, viewportId2, viewportId3]
+    [
+      viewportId1,
+      // viewportId2,
+      // viewportId3
+    ]
   );
 
   segmentation.segmentIndex.setActiveSegmentIndex(segmentationId, 3);
@@ -498,7 +514,29 @@ async function run() {
   ]);
 
   // Render the image
-  renderingEngine.renderViewports([viewportId1, viewportId2, viewportId3]);
+  renderingEngine.renderViewports([
+    viewportId1,
+    // viewportId2,
+    // viewportId3
+  ]);
+
+  setTimeout(() => activatePreviewWithoutHovering(), 1000);
 }
 
 run();
+
+function activatePreviewWithoutHovering() {
+  // Get the tool group
+  const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+
+  // Get the ThresholdCircle tool instance
+  const brushTool = toolGroup.getToolInstance(
+    brushInstanceNames.ThresholdCircle
+  );
+  const enabledElement = getEnabledElement(element1);
+
+  brushTool.previewCallback?.({
+    element: element1,
+    isSyntheticEvent: true,
+  });
+}

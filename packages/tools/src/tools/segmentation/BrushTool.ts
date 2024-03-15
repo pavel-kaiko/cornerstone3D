@@ -113,7 +113,7 @@ class BrushTool extends BaseTool {
         },
         defaultStrategy: 'FILL_INSIDE_CIRCLE',
         activeStrategy: 'FILL_INSIDE_CIRCLE',
-        brushSize: 1000,
+        brushSize: 500,
         preview: {
           // Have to enable the preview to use this
           enabled: false,
@@ -344,11 +344,40 @@ class BrushTool extends BaseTool {
     }
   };
 
-  public previewCallback = () => {
+  public previewCallback = ({
+    element,
+    isSyntheticEvent,
+  }: {
+    element?: HTMLDivElement;
+    isSyntheticEvent?: boolean;
+  } = {}) => {
     if (this._previewData.preview) {
-      return;
+      this.rejectPreview(element);
     }
-    this._previewData.timer = null;
+    const enabledElement = getEnabledElement(element);
+
+    console.log('isSyntheticEvent', isSyntheticEvent);
+    console.log('element', element);
+    console.log('enabledElement', enabledElement);
+    console.log('enabledElement.viewport', enabledElement.viewport);
+    console.log(
+      'enabledElement.viewport.canvas',
+      enabledElement.viewport.canvas
+    );
+
+    if (isSyntheticEvent && element) {
+      this._hoverData = this.createHoverData(element, [115, 250]);
+      this._calculateCursor(element, [115, 250]);
+
+      if (!this._hoverData) {
+        return;
+      }
+    }
+
+    if (element) {
+      this._previewData.element = element;
+    }
+
     this._previewData.preview = this.applyActiveStrategyCallback(
       getEnabledElement(this._previewData.element),
       this.getOperationData(this._previewData.element),

@@ -172,7 +172,10 @@ export default class BrushStrategy {
       return;
     }
 
-    const { strategySpecificConfiguration = {}, centerIJK } = initializedData;
+    console.log(1);
+
+    const { strategySpecificConfiguration = {}, centerIJK = [251, 210, 67] } =
+      initializedData;
     // Store the center IJK location so that we can skip an immediate same-point update
     // TODO - move this to the BrushTool
     if (csUtils.isEqual(centerIJK, strategySpecificConfiguration.centerIJK)) {
@@ -180,6 +183,8 @@ export default class BrushStrategy {
     } else {
       strategySpecificConfiguration.centerIJK = centerIJK;
     }
+
+    console.log(2);
 
     this._fill.forEach((func) => func(initializedData));
 
@@ -193,11 +198,14 @@ export default class BrushStrategy {
       initializedData.segmentationId,
       segmentationVoxelManager.getArrayOfSlices()
     );
+    console.log(3);
     // We are only previewing if there is a preview index, and there is at
     // least one slice modified
     if (!previewSegmentIndex || !previewVoxelManager.modifiedSlices.size) {
       return null;
     }
+
+    console.log(4);
     // Use the original initialized data set to preserve preview info
     return initializedData.preview || initializedData;
   };
@@ -314,7 +322,6 @@ export default class BrushStrategy {
 
   /**
    * Accept the preview, making it part of the overall segmentation
-   *
    * Over-written by the strategy composition.
    */
   public acceptPreview: (
@@ -323,8 +330,8 @@ export default class BrushStrategy {
   ) => void;
 
   /**
-   * Display a preview at the current position.  This will typically
-   * using the onInteractionStart, fill and onInteractionEnd methods,
+   * Display a preview at the current position. This will typically
+   * be using the onInteractionStart, fill and onInteractionEnd methods,
    * plus optional use of a preview.
    *
    * Over-written by the strategy composition.
