@@ -344,40 +344,44 @@ class BrushTool extends BaseTool {
     }
   };
 
-  public previewCallback = ({
-    element,
-    isSyntheticEvent,
-  }: {
-    element?: HTMLDivElement;
-    isSyntheticEvent?: boolean;
-  } = {}) => {
+  public manualPreview = (element: HTMLDivElement) => {
+    const enabledElement = getEnabledElement(element);
+
     if (this._previewData.preview) {
       this.rejectPreview(element);
     }
-    const enabledElement = getEnabledElement(element);
 
-    console.log('isSyntheticEvent', isSyntheticEvent);
-    console.log('element', element);
-    console.log('enabledElement', enabledElement);
-    console.log('enabledElement.viewport', enabledElement.viewport);
-    console.log(
-      'enabledElement.viewport.canvas',
-      enabledElement.viewport.canvas
-    );
+    // This might be a mouse down
+    this._previewData.isDrag = true;
+    this._previewData.timerStart = Date.now();
+    const canvasCenter = [
+      enabledElement.viewport.canvas.clientWidth / 2,
+      enabledElement.viewport.canvas.clientHeight / 2,
+    ];
+    this._hoverData = this.createHoverData(element, canvasCenter);
+    this._calculateCursor(element, canvasCenter);
 
-    if (isSyntheticEvent && element) {
-      this._hoverData = this.createHoverData(element, [115, 250]);
-      this._calculateCursor(element, [115, 250]);
-
-      if (!this._hoverData) {
-        return;
-      }
+    if (!this._hoverData) {
+      return;
     }
 
     if (element) {
       this._previewData.element = element;
     }
 
+    this._previewData.timer = null;
+    this._previewData.preview = this.applyActiveStrategyCallback(
+      getEnabledElement(this._previewData.element),
+      this.getOperationData(this._previewData.element),
+      StrategyCallbacks.Preview
+    );
+  };
+
+  previewCallback = () => {
+    if (this._previewData.preview) {
+      return;
+    }
+    this._previewData.timer = null;
     this._previewData.preview = this.applyActiveStrategyCallback(
       getEnabledElement(this._previewData.element),
       this.getOperationData(this._previewData.element),

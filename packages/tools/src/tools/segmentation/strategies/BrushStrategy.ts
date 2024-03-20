@@ -172,10 +172,7 @@ export default class BrushStrategy {
       return;
     }
 
-    console.log(1);
-
-    const { strategySpecificConfiguration = {}, centerIJK = [251, 210, 67] } =
-      initializedData;
+    const { strategySpecificConfiguration = {}, centerIJK } = initializedData;
     // Store the center IJK location so that we can skip an immediate same-point update
     // TODO - move this to the BrushTool
     if (csUtils.isEqual(centerIJK, strategySpecificConfiguration.centerIJK)) {
@@ -183,8 +180,6 @@ export default class BrushStrategy {
     } else {
       strategySpecificConfiguration.centerIJK = centerIJK;
     }
-
-    console.log(2);
 
     this._fill.forEach((func) => func(initializedData));
 
@@ -198,7 +193,7 @@ export default class BrushStrategy {
       initializedData.segmentationId,
       segmentationVoxelManager.getArrayOfSlices()
     );
-    console.log(3);
+
     // We are only previewing if there is a preview index, and there is at
     // least one slice modified
     if (!previewSegmentIndex || !previewVoxelManager.modifiedSlices.size) {

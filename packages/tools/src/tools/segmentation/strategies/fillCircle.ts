@@ -130,7 +130,6 @@ const CIRCLE_STRATEGY = new BrushStrategy(
 const CIRCLE_THRESHOLD_STRATEGY = new BrushStrategy(
   'CircleThreshold',
   compositions.regionFill,
-  compositions.fillRegionWithoutCenter,
   compositions.setValue,
   initializeCircle,
   compositions.determineSegmentIndex,

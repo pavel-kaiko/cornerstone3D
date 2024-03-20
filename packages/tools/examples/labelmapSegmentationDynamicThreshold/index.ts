@@ -533,10 +533,6 @@ function activatePreviewWithoutHovering() {
   const brushTool = toolGroup.getToolInstance(
     brushInstanceNames.ThresholdCircle
   );
-  const enabledElement = getEnabledElement(element1);
 
-  brushTool.previewCallback?.({
-    element: element1,
-    isSyntheticEvent: true,
-  });
+  brushTool.manualPreview?.(element1);
 }
