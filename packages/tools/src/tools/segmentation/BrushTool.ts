@@ -1,4 +1,8 @@
-import { utilities as csUtils, getEnabledElement } from '@cornerstonejs/core';
+import {
+  utilities as csUtils,
+  getEnabledElement,
+  triggerEvent,
+} from '@cornerstonejs/core';
 import { vec3, vec2 } from 'gl-matrix';
 
 import type { Types } from '@cornerstonejs/core';
@@ -44,6 +48,7 @@ import {
   LabelmapSegmentationDataStack,
 } from '../../types/LabelmapTypes';
 import { isVolumeSegmentation } from './strategies/utils/stackVolumeCheck';
+import triggerAnnotationRender from '../../utilities/triggerAnnotationRender';
 
 /**
  * A type for preview data/information, used to setup previews on hover, or
@@ -66,6 +71,7 @@ export type PreviewData = {
  */
 class BrushTool extends BaseTool {
   static toolName;
+
   private _editData: {
     segmentsLocked: number[]; //
     segmentationRepresentationUID?: string;
@@ -73,6 +79,7 @@ class BrushTool extends BaseTool {
     volumeId?: string;
     referencedVolumeId?: string;
   } | null;
+
   private _hoverData?: {
     brushCursor: any;
     segmentationId: string;
@@ -113,7 +120,7 @@ class BrushTool extends BaseTool {
         },
         defaultStrategy: 'FILL_INSIDE_CIRCLE',
         activeStrategy: 'FILL_INSIDE_CIRCLE',
-        brushSize: 500,
+        brushSize: 25,
         preview: {
           // Have to enable the preview to use this
           enabled: false,
@@ -344,49 +351,128 @@ class BrushTool extends BaseTool {
     }
   };
 
-  public manualPreview = (element: HTMLDivElement) => {
-    const enabledElement = getEnabledElement(element);
+  // manualPreview = (element: HTMLDivElement) => {
+  //   this._previewData.element = element;
+  //   this.configuration.brushSize = 500;
+  //
+  //   const enabledElement = getEnabledElement(element);
+  //   const operationData = this.getOperationData(element);
+  //   const { renderingEngine } = enabledElement;
+  //
+  //   this._previewData.preview = this.applyActiveStrategy(
+  //     enabledElement,
+  //     operationData
+  //   );
+  //
+  //   const canvasCenter = [
+  //     enabledElement.viewport.canvas.clientWidth / 2,
+  //     enabledElement.viewport.canvas.clientHeight / 2,
+  //   ] as Types.Point2;
+  //
+  //   this._previewData.element = element;
+  //   this._previewData.startPoint = canvasCenter;
+  //
+  //
+  //
+  //   // this._deactivateDraw(element);
+  //   // resetElementCursor(element);
+  // };
+
+  manualPreview = (element: HTMLDivElement) => {
+    // If a preview operation is in progress, cancel it
+    if (this._previewData.timer) {
+      window.clearTimeout(this._previewData.timer);
+      this._previewData.timer = null;
+    }
 
     if (this._previewData.preview) {
       this.rejectPreview(element);
+
+      // Reset _previewData object
+      this._previewData = {
+        preview: null,
+        element: null,
+        timerStart: Date.now(),
+        timer: null,
+        startPoint: [NaN, NaN],
+        isDrag: false,
+      };
     }
 
-    // This might be a mouse down
-    this._previewData.isDrag = true;
+    this.configuration.brushSize = 500;
+
+    const enabledElement = getEnabledElement(element);
+    this._previewData.element = element;
+
+    // We need this to don't brake the mouse based preview
+    this._previewData.isDrag = false;
+
     this._previewData.timerStart = Date.now();
+
     const canvasCenter = [
       enabledElement.viewport.canvas.clientWidth / 2,
       enabledElement.viewport.canvas.clientHeight / 2,
     ];
-    this._hoverData = this.createHoverData(element, canvasCenter);
-    this._calculateCursor(element, canvasCenter);
+
+    this._hoverData = this.createHoverData(
+      this._previewData.element,
+      canvasCenter
+    );
+    this._previewData.preview = this.applyActiveStrategy(
+      enabledElement,
+      this.getOperationData(element)
+    );
+
+    this._calculateCursor(this._previewData.element, canvasCenter);
 
     if (!this._hoverData) {
       return;
     }
 
-    if (element) {
-      this._previewData.element = element;
-    }
-
     this._previewData.timer = null;
-    this._previewData.preview = this.applyActiveStrategyCallback(
-      getEnabledElement(this._previewData.element),
-      this.getOperationData(this._previewData.element),
-      StrategyCallbacks.Preview
-    );
+
+    const timer = window.setTimeout(this.previewCallback, 250);
+
+    Object.assign(this._previewData, {
+      timerStart: Date.now(),
+      timer,
+      startPoint: canvasCenter,
+      element: this._previewData.element,
+    });
+
+    // const preview = this.applyActiveStrategyCallback(
+    //   getEnabledElement(this._previewData.element),
+    //   this.getOperationData(this._previewData.element),
+    //   StrategyCallbacks.Preview
+    // );
+    //
+    // const timer = window.setTimeout(() => {
+    //   this._previewData.preview = preview;
+    // }, 250);
+    //
+    // Object.assign(this._previewData, {
+    //   timerStart: Date.now(),
+    //   timer,
+    //   startPoint: canvasCenter,
+    //   element,
+    // });
   };
 
   previewCallback = () => {
     if (this._previewData.preview) {
+      console.log('NOT Previewing');
       return;
     }
     this._previewData.timer = null;
-    this._previewData.preview = this.applyActiveStrategyCallback(
+
+    const preview = this.applyActiveStrategyCallback(
       getEnabledElement(this._previewData.element),
       this.getOperationData(this._previewData.element),
       StrategyCallbacks.Preview
     );
+
+    this._previewData.preview = preview;
+    console.log('DO Previewing', preview);
   };
 
   private createHoverData(element, centerCanvas?) {
@@ -554,6 +640,7 @@ class BrushTool extends BaseTool {
       // Provide the preview information so that data can be used directly
       preview: this._previewData?.preview,
     };
+
     return operationData;
   }
 
@@ -639,6 +726,7 @@ class BrushTool extends BaseTool {
   private _endCallback = (evt: EventTypes.InteractionEventType): void => {
     const eventData = evt.detail;
     const { element } = eventData;
+
     const enabledElement = getEnabledElement(element);
 
     const operationData = this.getOperationData(element);

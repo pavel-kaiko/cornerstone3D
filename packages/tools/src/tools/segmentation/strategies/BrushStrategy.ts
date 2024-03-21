@@ -200,7 +200,6 @@ export default class BrushStrategy {
       return null;
     }
 
-    console.log(4);
     // Use the original initialized data set to preserve preview info
     return initializedData.preview || initializedData;
   };
@@ -286,6 +285,7 @@ export default class BrushStrategy {
       return;
     }
     const initializedData = this.initialize(enabledElement, operationData);
+
     if (!initializedData) {
       // Happens if there isn't a labelmap to apply to
       return;

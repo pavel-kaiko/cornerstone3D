@@ -15,6 +15,8 @@ export default {
   [StrategyCallbacks.Preview]: function (
     operationData: InitializedOperationData
   ) {
+    console.log('=>>> StrategyCallbacks.Preview');
+
     const { previewColors, strategySpecificConfiguration, enabledElement } =
       operationData;
 
@@ -28,7 +30,6 @@ export default {
     }
     delete strategySpecificConfiguration.centerSegmentIndex;
 
-    // Now generate a normal preview as though the user had clicked, filled, released
     this.onInteractionStart?.(enabledElement, operationData);
 
     const preview = this.fill(enabledElement, operationData);

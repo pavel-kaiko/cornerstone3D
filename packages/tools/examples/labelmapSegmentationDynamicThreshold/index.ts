@@ -214,9 +214,7 @@ addDropdownToToolbar({
       name === [...thresholdOptions.keys()][5] ||
       name === [...thresholdOptions.keys()][6]
     ) {
-      console.log('thresholdArgs', thresholdArgs);
-      console.log('name', name);
-      activatePreviewWithoutHovering();
+      window.setTimeout(activatePreviewWithoutHovering, 1000);
     }
   },
 });
@@ -250,6 +248,16 @@ addButtonToToolbar({
     const activeName = toolGroup.getActivePrimaryMouseButtonTool();
     const brush = toolGroup.getToolInstance(activeName);
     brush.rejectPreview?.(element1);
+  },
+});
+
+addButtonToToolbar({
+  title: 'Render Preview',
+  onClick: () => {
+    const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+    const activeName = toolGroup.getActivePrimaryMouseButtonTool();
+    const brush = toolGroup.getToolInstance(activeName);
+    brush.manualPreview?.(element1);
   },
 });
 
@@ -520,7 +528,7 @@ async function run() {
     // viewportId3
   ]);
 
-  setTimeout(() => activatePreviewWithoutHovering(), 1000);
+  // setTimeout(() => activatePreviewWithoutHovering(), 50);
 }
 
 run();
@@ -534,5 +542,5 @@ function activatePreviewWithoutHovering() {
     brushInstanceNames.ThresholdCircle
   );
 
-  brushTool.manualPreview?.(element1);
+  void brushTool.manualPreview(element1);
 }

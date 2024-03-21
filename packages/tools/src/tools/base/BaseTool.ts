@@ -81,6 +81,7 @@ abstract class BaseTool implements IBaseTool {
     operationData: unknown
   ): any {
     const { strategies, activeStrategy } = this.configuration;
+
     return strategies[activeStrategy]?.call(
       this,
       enabledElement,
@@ -112,11 +113,11 @@ abstract class BaseTool implements IBaseTool {
       );
     }
 
-    return strategies[activeStrategy][callbackType]?.call(
-      this,
-      enabledElement,
-      operationData
-    );
+    const applyActiveStrategyCallbackResult = strategies[activeStrategy][
+      callbackType
+    ]?.call(this, enabledElement, operationData);
+
+    return applyActiveStrategyCallbackResult;
   }
 
   /**
