@@ -68,7 +68,11 @@ const initializeCircle = {
     );
 
     segmentationVoxelManager.boundsIJK = boundsIJK;
-    imageVoxelManager.isInObject = () => true;
+    imageVoxelManager.isInObject = createPointInEllipse({
+      topLeftWorld,
+      bottomRightWorld,
+      center,
+    });
   },
 } as Composition;
 
@@ -87,9 +91,9 @@ function createPointInEllipse(worldInfo: {
 }) {
   const { topLeftWorld, bottomRightWorld, center } = worldInfo;
 
-  const xRadius = Math.abs(topLeftWorld[0]);
-  const yRadius = Math.abs(topLeftWorld[1]);
-  const zRadius = Math.abs(topLeftWorld[2]);
+  const xRadius = Math.abs(topLeftWorld[0] - bottomRightWorld[0]) / 2;
+  const yRadius = Math.abs(topLeftWorld[1] - bottomRightWorld[1]) / 2;
+  const zRadius = Math.abs(topLeftWorld[2] - bottomRightWorld[2]) / 2;
 
   const radius = Math.max(xRadius, yRadius, zRadius);
   if (
@@ -113,9 +117,7 @@ function createPointInEllipse(worldInfo: {
   };
 
   const { precalculated } = precalculatePointInEllipse(ellipseObj, {});
-  // return precalculated;
-
-  return () => true;
+  return precalculated;
 }
 
 const CIRCLE_STRATEGY = new BrushStrategy(

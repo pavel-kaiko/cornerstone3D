@@ -973,6 +973,9 @@ export function getEnabledElement(element: HTMLDivElement | undefined): IEnabled
 export function getEnabledElementByIds(viewportId: string, renderingEngineId: string): IEnabledElement;
 
 // @public (undocumented)
+export function getEnabledElementByViewportId(viewportId: string): IEnabledElement;
+
+// @public (undocumented)
 export function getEnabledElements(): IEnabledElement[];
 
 // @public (undocumented)
@@ -1027,7 +1030,7 @@ function getSpacingInNormalDirection(imageVolume: IImageVolume | {
 }, viewPlaneNormal: Point3): number;
 
 // @public (undocumented)
-function getTargetVolumeAndSpacingInNormalDir(viewport: IVolumeViewport, camera: ICamera, targetVolumeId?: string, useSlabThickness?: boolean): {
+function getTargetVolumeAndSpacingInNormalDir(viewport: IVolumeViewport, camera: ICamera, targetId?: string, useSlabThickness?: boolean): {
     imageVolume: IImageVolume;
     spacingInNormalDirection: number;
     actorUID: string;
@@ -1059,6 +1062,9 @@ function getVoiFromSigmoidRGBTransferFunction(cfun: vtkColorTransferFunction): [
 
 // @public (undocumented)
 function getVolumeActorCorners(volumeActor: any): Array<Point3>;
+
+// @public (undocumented)
+const getVolumeId: (targetId: string) => string;
 
 // @public (undocumented)
 function getVolumeLoaderSchemes(): string[];
@@ -3429,7 +3435,8 @@ declare namespace utilities {
         roundNumber,
         roundToPrecision,
         getViewportImageIds,
-        getRandomSampleFromArray
+        getRandomSampleFromArray,
+        getVolumeId
     }
 }
 export { utilities }
@@ -3638,7 +3645,7 @@ export class Viewport implements IViewport {
     // (undocumented)
     customRenderViewportToCanvas: () => unknown;
     // (undocumented)
-    readonly defaultOptions: any;
+    readonly defaultOptions: Record<string, any>;
     // (undocumented)
     readonly element: HTMLDivElement;
     // (undocumented)
@@ -3687,7 +3694,7 @@ export class Viewport implements IViewport {
     // (undocumented)
     getProperties: () => void;
     // (undocumented)
-    getReferenceId(specifier?: ViewReferenceSpecifier): string;
+    getReferenceId(_specifier?: ViewReferenceSpecifier): string;
     // (undocumented)
     getRenderer(): any;
     // (undocumented)

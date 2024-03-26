@@ -15,11 +15,8 @@ export default {
   [StrategyCallbacks.Preview]: function (
     operationData: InitializedOperationData
   ) {
-    console.log('=>>> StrategyCallbacks.Preview');
-
     const { previewColors, strategySpecificConfiguration, enabledElement } =
       operationData;
-
     if (!previewColors || !strategySpecificConfiguration) {
       return;
     }
@@ -30,16 +27,14 @@ export default {
     }
     delete strategySpecificConfiguration.centerSegmentIndex;
 
+    // Now generate a normal preview as though the user had clicked, filled, released
     this.onInteractionStart?.(enabledElement, operationData);
-
     const preview = this.fill(enabledElement, operationData);
-
     if (preview) {
       preview.isPreviewFromHover = true;
       operationData.preview = preview;
       this.onInteractionEnd?.(enabledElement, operationData);
     }
-
     return preview;
   },
 

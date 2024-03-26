@@ -1,8 +1,4 @@
-import {
-  utilities as csUtils,
-  getEnabledElement,
-  triggerEvent,
-} from '@cornerstonejs/core';
+import { utilities as csUtils, getEnabledElement } from '@cornerstonejs/core';
 import { vec3, vec2 } from 'gl-matrix';
 
 import type { Types } from '@cornerstonejs/core';
@@ -48,7 +44,6 @@ import {
   LabelmapSegmentationDataStack,
 } from '../../types/LabelmapTypes';
 import { isVolumeSegmentation } from './strategies/utils/stackVolumeCheck';
-import triggerAnnotationRender from '../../utilities/triggerAnnotationRender';
 
 /**
  * A type for preview data/information, used to setup previews on hover, or
@@ -71,7 +66,6 @@ export type PreviewData = {
  */
 class BrushTool extends BaseTool {
   static toolName;
-
   private _editData: {
     segmentsLocked: number[]; //
     segmentationRepresentationUID?: string;
@@ -79,7 +73,6 @@ class BrushTool extends BaseTool {
     volumeId?: string;
     referencedVolumeId?: string;
   } | null;
-
   private _hoverData?: {
     brushCursor: any;
     segmentationId: string;
@@ -379,14 +372,18 @@ class BrushTool extends BaseTool {
   // };
 
   manualPreview = (element: HTMLDivElement) => {
+    console.log('==========>', element);
+
     // If a preview operation is in progress, cancel it
     if (this._previewData.timer) {
       window.clearTimeout(this._previewData.timer);
       this._previewData.timer = null;
     }
 
+    this.configuration.preview.enabled = true;
+
     if (this._previewData.preview) {
-      this.rejectPreview(element);
+      this.rejectPreview(this._previewData.element);
 
       // Reset _previewData object
       this._previewData = {
@@ -399,10 +396,12 @@ class BrushTool extends BaseTool {
       };
     }
 
-    this.configuration.brushSize = 500;
+    this.configuration.brushSize = 1000;
 
-    const enabledElement = getEnabledElement(element);
     this._previewData.element = element;
+    const enabledElement = getEnabledElement(this._previewData.element);
+
+    console.log('enabledElement  ========>', enabledElement);
 
     // We need this to don't brake the mouse based preview
     this._previewData.isDrag = false;
@@ -418,9 +417,11 @@ class BrushTool extends BaseTool {
       this._previewData.element,
       canvasCenter
     );
-    this._previewData.preview = this.applyActiveStrategy(
+
+    this._previewData.preview = this.applyActiveStrategyCallback(
       enabledElement,
-      this.getOperationData(element)
+      this.getOperationData(this._previewData.element),
+      StrategyCallbacks.Preview
     );
 
     this._calculateCursor(this._previewData.element, canvasCenter);
@@ -439,30 +440,13 @@ class BrushTool extends BaseTool {
       startPoint: canvasCenter,
       element: this._previewData.element,
     });
-
-    // const preview = this.applyActiveStrategyCallback(
-    //   getEnabledElement(this._previewData.element),
-    //   this.getOperationData(this._previewData.element),
-    //   StrategyCallbacks.Preview
-    // );
-    //
-    // const timer = window.setTimeout(() => {
-    //   this._previewData.preview = preview;
-    // }, 250);
-    //
-    // Object.assign(this._previewData, {
-    //   timerStart: Date.now(),
-    //   timer,
-    //   startPoint: canvasCenter,
-    //   element,
-    // });
   };
 
   previewCallback = () => {
     if (this._previewData.preview) {
-      console.log('NOT Previewing');
       return;
     }
+
     this._previewData.timer = null;
 
     const preview = this.applyActiveStrategyCallback(
@@ -472,7 +456,6 @@ class BrushTool extends BaseTool {
     );
 
     this._previewData.preview = preview;
-    console.log('DO Previewing', preview);
   };
 
   private createHoverData(element, centerCanvas?) {
@@ -640,7 +623,6 @@ class BrushTool extends BaseTool {
       // Provide the preview information so that data can be used directly
       preview: this._previewData?.preview,
     };
-
     return operationData;
   }
 
@@ -726,7 +708,6 @@ class BrushTool extends BaseTool {
   private _endCallback = (evt: EventTypes.InteractionEventType): void => {
     const eventData = evt.detail;
     const { element } = eventData;
-
     const enabledElement = getEnabledElement(element);
 
     const operationData = this.getOperationData(element);

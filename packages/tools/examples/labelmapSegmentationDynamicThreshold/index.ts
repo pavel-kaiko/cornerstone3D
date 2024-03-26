@@ -142,7 +142,7 @@ const previewColors = {
   1: [0, 255, 255, 255],
 };
 const preview = {
-  enabled: true,
+  enabled: false,
   previewColors,
 };
 
@@ -221,8 +221,8 @@ addDropdownToToolbar({
 
 addSliderToToolbar({
   title: 'Brush Size',
-  range: [200, 1000],
-  defaultValue: 200,
+  range: [5, 50],
+  defaultValue: 10,
   onSelectedValueChange: (valueAsStringOrNumber) => {
     const value = Number(valueAsStringOrNumber);
     segmentationUtils.setBrushSizeForToolGroup(toolGroupId, value);

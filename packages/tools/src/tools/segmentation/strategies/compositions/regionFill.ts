@@ -26,11 +26,9 @@ export default {
     const callback = isWithinThreshold
       ? (data) => {
           const { value, index } = data;
-
           if (segmentsLocked.includes(value) || !isWithinThreshold(index)) {
             return;
           }
-
           setValue(operationData, data);
         }
       : (data) => setValue(operationData, data);
