@@ -356,7 +356,12 @@ class BrushTool extends BaseTool {
     this.configuration.preview.enabled = true;
 
     if (this._previewData.preview && this._previewData.element) {
-      this.rejectPreview(this._previewData.element);
+      try {
+        this.rejectPreview(this._previewData.element);
+      } catch (error) {
+        this._previewData = null;
+        console.error('Error in reject preview', error);
+      }
 
       // Reset _previewData object
       this._previewData = {
@@ -395,13 +400,10 @@ class BrushTool extends BaseTool {
 
     const activeSegmentationRepresentation =
       activeSegmentation.getActiveSegmentationRepresentation(toolGroupId);
-    if (!activeSegmentationRepresentation) {
-      console.log(
-        'No active segmentation detected, create a segmentation representation before using the brush tool'
-      );
 
-      return;
-    }
+    console.log(activeSegmentationRepresentation);
+
+    console.log('this =====>', this);
 
     this._previewData.preview = this.applyActiveStrategyCallback(
       enabledElement,
