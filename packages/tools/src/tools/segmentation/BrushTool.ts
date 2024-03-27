@@ -344,33 +344,6 @@ class BrushTool extends BaseTool {
     }
   };
 
-  // manualPreview = (element: HTMLDivElement) => {
-  //   this._previewData.element = element;
-  //   this.configuration.brushSize = 500;
-  //
-  //   const enabledElement = getEnabledElement(element);
-  //   const operationData = this.getOperationData(element);
-  //   const { renderingEngine } = enabledElement;
-  //
-  //   this._previewData.preview = this.applyActiveStrategy(
-  //     enabledElement,
-  //     operationData
-  //   );
-  //
-  //   const canvasCenter = [
-  //     enabledElement.viewport.canvas.clientWidth / 2,
-  //     enabledElement.viewport.canvas.clientHeight / 2,
-  //   ] as Types.Point2;
-  //
-  //   this._previewData.element = element;
-  //   this._previewData.startPoint = canvasCenter;
-  //
-  //
-  //
-  //   // this._deactivateDraw(element);
-  //   // resetElementCursor(element);
-  // };
-
   manualPreview = (element: HTMLDivElement) => {
     console.log('==========>', element);
 
