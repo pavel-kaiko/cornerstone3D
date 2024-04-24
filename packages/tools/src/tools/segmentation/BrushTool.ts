@@ -1,4 +1,4 @@
-import { utilities as csUtils, getEnabledElement } from '@cornerstonejs/core';
+import { getEnabledElement } from '@cornerstonejs/core';
 import { vec3, vec2 } from 'gl-matrix';
 
 import type { Types } from '@cornerstonejs/core';
@@ -126,6 +126,7 @@ class BrushTool extends BaseTool {
           dragMoveDistance: 4,
           // The time to consider a mouse click a drag when moved less than dragMoveDistance
           dragTimeMs: 500,
+          isManualPreviewEnabled: false,
         },
         actions: {
           [StrategyCallbacks.AcceptPreview]: {
@@ -306,6 +307,10 @@ class BrushTool extends BaseTool {
    * The preview also needs to be cancelled on changing tools.
    */
   mouseMoveCallback = (evt: EventTypes.InteractionEventType): void => {
+    if (this.configuration.preview.isManualPreviewEnabled) {
+      return;
+    }
+
     if (this.mode === ToolModes.Active) {
       this.updateCursor(evt);
       if (!this.configuration.preview.enabled) {
@@ -344,9 +349,11 @@ class BrushTool extends BaseTool {
     }
   };
 
-  manualPreview = (element: HTMLDivElement) => {
-    console.log('==========>', element);
+  setManualPreviewMode = (isManualPreviewEnabled: boolean) => {
+    this.configuration.preview.isManualPreviewEnabled = isManualPreviewEnabled;
+  };
 
+  manualPreview = (element: HTMLDivElement) => {
     // If a preview operation is in progress, cancel it
     if (this._previewData.timer) {
       window.clearTimeout(this._previewData.timer);
@@ -379,11 +386,8 @@ class BrushTool extends BaseTool {
     this._previewData.element = element;
     const enabledElement = getEnabledElement(this._previewData.element);
 
-    console.log('enabledElement  ========>', enabledElement);
-
     // We need this to don't brake the mouse based preview
     this._previewData.isDrag = false;
-
     this._previewData.timerStart = Date.now();
 
     const canvasCenter = [
@@ -400,10 +404,6 @@ class BrushTool extends BaseTool {
 
     const activeSegmentationRepresentation =
       activeSegmentation.getActiveSegmentationRepresentation(toolGroupId);
-
-    console.log(activeSegmentationRepresentation);
-
-    console.log('this =====>', this);
 
     this._previewData.preview = this.applyActiveStrategyCallback(
       enabledElement,
