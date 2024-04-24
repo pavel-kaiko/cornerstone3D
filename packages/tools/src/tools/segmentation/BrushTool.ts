@@ -152,7 +152,7 @@ class BrushTool extends BaseTool {
     super(toolProps, defaultToolProps);
   }
 
-  onSetToolPassive = (evt) => {
+  onSetToolPassive = () => {
     this.disableCursor();
   };
 
@@ -255,6 +255,10 @@ class BrushTool extends BaseTool {
   preMouseDownCallback = (
     evt: EventTypes.MouseDownActivateEventType
   ): boolean => {
+    if (this.configuration.preview.isManualPreviewEnabled) {
+      return;
+    }
+
     const eventData = evt.detail;
     const { element } = eventData;
     const enabledElement = getEnabledElement(element);
@@ -865,16 +869,19 @@ class BrushTool extends BaseTool {
     }
 
     const circleUID = '0';
-    drawCircleSvg(
-      svgDrawingHelper,
-      annotationUID,
-      circleUID,
-      center as Types.Point2,
-      radius,
-      {
-        color,
-      }
-    );
+
+    if (!this.configuration.preview.isManualPreviewEnabled) {
+      drawCircleSvg(
+        svgDrawingHelper,
+        annotationUID,
+        circleUID,
+        center as Types.Point2,
+        radius,
+        {
+          color,
+        }
+      );
+    }
 
     const activeStrategy = this.configuration.activeStrategy;
     const { dynamicRadiusInCanvas } = this.configuration
