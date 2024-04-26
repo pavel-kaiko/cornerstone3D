@@ -1,4 +1,11 @@
-import { getEnabledElement } from '@cornerstonejs/core';
+import {
+  utilities as csUtils,
+  cache,
+  getEnabledElement,
+  StackViewport,
+  eventTarget,
+  Enums,
+} from '@cornerstonejs/core';
 import { vec3, vec2 } from 'gl-matrix';
 
 import type { Types } from '@cornerstonejs/core';
@@ -108,11 +115,11 @@ class BrushTool extends BaseTool {
         strategySpecificConfiguration: {
           THRESHOLD: {
             threshold: [-150, -70], // E.g. CT Fat // Only used during threshold strategies.
-            dynamicRadius: 0, // in voxel counts in each direction, only used during dynamic threshold strategies.
           },
         },
         defaultStrategy: 'FILL_INSIDE_CIRCLE',
         activeStrategy: 'FILL_INSIDE_CIRCLE',
+        thresholdVolumeId: null,
         brushSize: 25,
         preview: {
           // Have to enable the preview to use this
@@ -152,7 +159,7 @@ class BrushTool extends BaseTool {
     super(toolProps, defaultToolProps);
   }
 
-  onSetToolPassive = () => {
+  onSetToolPassive = (evt) => {
     this.disableCursor();
   };
 

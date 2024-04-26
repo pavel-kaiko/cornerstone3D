@@ -152,8 +152,8 @@ const fillInsideCircle = CIRCLE_STRATEGY.strategyFunction;
 /**
  * Fill inside the circular region segment inside the segmentation defined by the operationData.
  * It fills the segmentation pixels inside the defined circle.
- * @param enabledElement - The element for which the segment is being filled.
- * @param operationData - FillOperationData
+ * @param enabledElement - The element for which the segment is being erased.
+ * @param operationData - EraseOperationData
  */
 const thresholdInsideCircle = CIRCLE_THRESHOLD_STRATEGY.strategyFunction;
 
