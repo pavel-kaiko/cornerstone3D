@@ -141,6 +141,18 @@ const CIRCLE_THRESHOLD_STRATEGY = new BrushStrategy(
   compositions.islandRemoval
 );
 
+const AREA_THRESHOLD_STRATEGY = new BrushStrategy(
+  'CircleThreshold',
+  compositions.areaFill,
+  compositions.setValue,
+  initializeCircle,
+  compositions.determineSegmentIndex,
+  compositions.dynamicThreshold,
+  compositions.threshold,
+  compositions.preview,
+  compositions.islandRemoval
+);
+
 /**
  * Fill inside the circular region segment inside the segmentation defined by the operationData.
  * It fills the segmentation pixels inside the defined circle.
@@ -158,6 +170,13 @@ const fillInsideCircle = CIRCLE_STRATEGY.strategyFunction;
 const thresholdInsideCircle = CIRCLE_THRESHOLD_STRATEGY.strategyFunction;
 
 /**
+ * Fill inside the circular region segment inside the segmentation defined by the operationData.
+ * It fills the segmentation pixels inside the defined circle.
+ * @param enabledElement - The element for which the segment is being erased.
+ * @param operationData - EraseOperationData
+ */
+const thresholdInsideArea = AREA_THRESHOLD_STRATEGY.strategyFunction;
+/**
  * Fill outside the circular region segment inside the segmentation defined by the operationData.
  * It fills the segmentation pixels outside the  defined circle.
  * @param enabledElement - The element for which the segment is being erased.
@@ -168,9 +187,11 @@ export function fillOutsideCircle(): void {
 }
 
 export {
+  AREA_THRESHOLD_STRATEGY,
   CIRCLE_STRATEGY,
   CIRCLE_THRESHOLD_STRATEGY,
-  fillInsideCircle,
-  thresholdInsideCircle,
   createPointInEllipse as createEllipseInPoint,
+  fillInsideCircle,
+  thresholdInsideArea,
+  thresholdInsideCircle,
 };

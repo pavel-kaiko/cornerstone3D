@@ -23,6 +23,7 @@ import {
 import { eraseInsideSphere } from './strategies/eraseSphere';
 import {
   thresholdInsideCircle,
+  thresholdInsideArea,
   fillInsideCircle,
 } from './strategies/fillCircle';
 import { eraseInsideCircle } from './strategies/eraseCircle';
@@ -109,6 +110,7 @@ class BrushTool extends BaseTool {
           ERASE_INSIDE_CIRCLE: eraseInsideCircle,
           FILL_INSIDE_SPHERE: fillInsideSphere,
           ERASE_INSIDE_SPHERE: eraseInsideSphere,
+          THRESHOLD_INSIDE_AREA: thresholdInsideArea,
           THRESHOLD_INSIDE_CIRCLE: thresholdInsideCircle,
           THRESHOLD_INSIDE_SPHERE: thresholdInsideSphere,
         },

@@ -17,10 +17,10 @@ import {
   setCtTransferFunctionForVolumeActor,
   getLocalUrl,
   addButtonToToolbar,
+  addManipulationBindings,
+  labelmapTools,
 } from '../../../../utils/demo/helpers';
 import * as cornerstoneTools from '@cornerstonejs/tools';
-import { StrategyCallbacks } from '../../src/enums';
-import { hideElementCursor } from '../../src/cursors/elementCursor';
 
 // This is for debugging purposes
 console.warn(
@@ -148,7 +148,7 @@ const preview = {
 
 // ============================= //
 addDropdownToToolbar({
-  options: { values: optionsValues, defaultValue: BrushTool.toolName },
+  options: { map: labelmapTools.toolMap },
   onSelectedValueChange: (nameAsStringOrNumber) => {
     const name = String(nameAsStringOrNumber);
     const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
@@ -160,69 +160,29 @@ addDropdownToToolbar({
       toolGroup.setToolDisabled(toolName);
     }
 
-    if (brushValues.includes(name)) {
-      toolGroup.setToolActive(name, {
-        bindings: [{ mouseButton: MouseBindings.Primary }],
-      });
-    } else {
-      const toolName = name;
-
-      toolGroup.setToolActive(toolName, {
-        bindings: [{ mouseButton: MouseBindings.Primary }],
-      });
-    }
+    toolGroup.setToolActive(name, {
+      bindings: [{ mouseButton: MouseBindings.Primary }],
+    });
   },
 });
-
-const thresholdOptions = new Map<string, any>();
-thresholdOptions.set('Dynamic Radius 0', { isDynamic: true, dynamicRadius: 0 });
-thresholdOptions.set('Dynamic Radius 1', { isDynamic: true, dynamicRadius: 1 });
-thresholdOptions.set('Dynamic Radius 3', { isDynamic: true, dynamicRadius: 3 });
-thresholdOptions.set('Dynamic Radius 5', { isDynamic: true, dynamicRadius: 5 });
-thresholdOptions.set('Use Existing Threshold', {
-  isDynamic: false,
-  dynamicRadius: 5,
-});
-thresholdOptions.set('CT Fat: (-150, -70)', {
-  threshold: [-150, -70],
-  isDynamic: false,
-});
-thresholdOptions.set('CT Bone: (200, 1000)', {
-  threshold: [200, 1000],
-  isDynamic: false,
-});
-
-const defaultThresholdOption = [...thresholdOptions.keys()][5];
 
 addDropdownToToolbar({
   options: {
-    values: Array.from(thresholdOptions.keys()),
-    defaultValue: defaultThresholdOption,
+    map: labelmapTools.thresholdOptions,
   },
-  onSelectedValueChange: (nameAsStringOrNumber) => {
-    const name = String(nameAsStringOrNumber);
-
-    const thresholdArgs = thresholdOptions.get(name);
-
+  onSelectedValueChange: (name, thresholdArgs) => {
     segmentationUtils.setBrushThresholdForToolGroup(
       toolGroupId,
       thresholdArgs.threshold,
       thresholdArgs
     );
-
-    if (
-      name === [...thresholdOptions.keys()][5] ||
-      name === [...thresholdOptions.keys()][6]
-    ) {
-      window.setTimeout(activatePreviewWithoutHovering, 1000);
-    }
   },
 });
 
 addSliderToToolbar({
   title: 'Brush Size',
   range: [5, 50],
-  defaultValue: 10,
+  defaultValue: 25,
   onSelectedValueChange: (valueAsStringOrNumber) => {
     const value = Number(valueAsStringOrNumber);
     segmentationUtils.setBrushSizeForToolGroup(toolGroupId, value);
@@ -252,7 +212,7 @@ addButtonToToolbar({
 });
 
 addButtonToToolbar({
-  title: 'Render Preview',
+  title: 'Manual Preview',
   onClick: () => {
     const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
     const activeName = toolGroup.getActivePrimaryMouseButtonTool();
@@ -298,139 +258,11 @@ async function run() {
     ProgressiveRetrieveImages.interleavedRetrieveStages
   );
 
-  // Add tools to Cornerstone3D
-  cornerstoneTools.addTool(PanTool);
-  cornerstoneTools.addTool(ZoomTool);
-  cornerstoneTools.addTool(StackScrollMouseWheelTool);
-  cornerstoneTools.addTool(StackScrollTool);
-  cornerstoneTools.addTool(SegmentationDisplayTool);
-  cornerstoneTools.addTool(RectangleScissorsTool);
-  cornerstoneTools.addTool(CircleScissorsTool);
-  cornerstoneTools.addTool(SphereScissorsTool);
-  cornerstoneTools.addTool(PaintFillTool);
-  cornerstoneTools.addTool(BrushTool);
-
   // Define tool groups to add the segmentation display tool to
   const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
-
-  // Manipulation Tools
-  toolGroup.addTool(PanTool.toolName);
-  toolGroup.addTool(ZoomTool.toolName);
-  toolGroup.addTool(StackScrollMouseWheelTool.toolName);
-
-  // Segmentation Tools
+  addManipulationBindings(toolGroup, { toolMap: labelmapTools.toolMap });
+  cornerstoneTools.addTool(SegmentationDisplayTool);
   toolGroup.addTool(SegmentationDisplayTool.toolName);
-  toolGroup.addTool(RectangleScissorsTool.toolName);
-  toolGroup.addTool(CircleScissorsTool.toolName);
-  toolGroup.addTool(SphereScissorsTool.toolName);
-  toolGroup.addToolInstance(
-    brushInstanceNames.ScissorsEraser,
-    SphereScissorsTool.toolName,
-    {
-      activeStrategy: brushStrategies.ScissorsEraser,
-    }
-  );
-  toolGroup.addTool(PaintFillTool.toolName);
-  toolGroup.addTool(StackScrollTool.toolName);
-  toolGroup.addToolInstance(
-    brushInstanceNames.CircularBrush,
-    BrushTool.toolName,
-    {
-      activeStrategy: brushStrategies.CircularBrush,
-      preview,
-      strategySpecificConfiguration: {
-        useCenterSegmentIndex: true,
-      },
-    }
-  );
-  toolGroup.addToolInstance(
-    brushInstanceNames.CircularEraser,
-    BrushTool.toolName,
-    {
-      activeStrategy: brushStrategies.CircularEraser,
-      preview,
-    }
-  );
-  toolGroup.addToolInstance(
-    brushInstanceNames.SphereBrush,
-    BrushTool.toolName,
-    {
-      activeStrategy: brushStrategies.SphereBrush,
-      preview,
-    }
-  );
-  toolGroup.addToolInstance(
-    brushInstanceNames.SphereEraser,
-    BrushTool.toolName,
-    {
-      activeStrategy: brushStrategies.SphereEraser,
-      previewColors,
-    }
-  );
-  toolGroup.setToolActive(StackScrollTool.toolName, {
-    bindings: [
-      {
-        mouseButton: MouseBindings.Primary, // Left Click
-        modifierKey: KeyboardBindings.Alt,
-      },
-      {
-        numTouchPoints: 1,
-        modifierKey: KeyboardBindings.Meta,
-      },
-    ],
-  });
-
-  // Setup threshold and the default strategy arguments
-  const thresholdArgs = thresholdOptions.get(defaultThresholdOption);
-  toolGroup.addToolInstance(
-    brushInstanceNames.ThresholdCircle,
-    BrushTool.toolName,
-    {
-      activeStrategy: brushStrategies.ThresholdCircle,
-      preview,
-      strategySpecificConfiguration: {
-        useCenterSegmentIndex: false,
-        THRESHOLD: { ...thresholdArgs },
-      },
-    }
-  );
-
-  toolGroup.setToolEnabled(SegmentationDisplayTool.toolName);
-
-  toolGroup.setToolActive(brushInstanceNames.ThresholdCircle, {
-    bindings: [{ mouseButton: MouseBindings.Primary }],
-  });
-
-  toolGroup.setToolActive(ZoomTool.toolName, {
-    bindings: [
-      {
-        mouseButton: MouseBindings.Primary, // Shift Left Click
-        modifierKey: KeyboardBindings.Shift,
-      },
-    ],
-  });
-
-  toolGroup.setToolActive(PanTool.toolName, {
-    bindings: [
-      {
-        mouseButton: MouseBindings.Auxiliary, // Middle Click
-      },
-      {
-        mouseButton: MouseBindings.Primary,
-        modifierKey: KeyboardBindings.Ctrl,
-      },
-    ],
-  });
-  toolGroup.setToolActive(ZoomTool.toolName, {
-    bindings: [
-      {
-        mouseButton: MouseBindings.Secondary, // Right Click
-      },
-    ],
-  });
-  // As the Stack Scroll mouse wheel is a tool using the `mouseWheelCallback`
-  // hook instead of mouse buttons, it does not need to assign any mouse button.
-  toolGroup.setToolActive(StackScrollMouseWheelTool.toolName);
 
   // Get Cornerstone imageIds for the source data and fetch metadata into RAM
   const imageIds = await createImageIdsAndCacheMetaData({
@@ -469,31 +301,31 @@ async function run() {
         background: <Types.Point3>[0, 0, 0],
       },
     },
-    // {
-    //   viewportId: viewportId2,
-    //   type: ViewportType.ORTHOGRAPHIC,
-    //   element: element2,
-    //   defaultOptions: {
-    //     orientation: Enums.OrientationAxis.SAGITTAL,
-    //     background: <Types.Point3>[0, 0, 0],
-    //   },
-    // },
-    // {
-    //   viewportId: viewportId3,
-    //   type: ViewportType.ORTHOGRAPHIC,
-    //   element: element3,
-    //   defaultOptions: {
-    //     orientation: Enums.OrientationAxis.CORONAL,
-    //     background: <Types.Point3>[0, 0, 0],
-    //   },
-    // },
+    {
+      viewportId: viewportId2,
+      type: ViewportType.ORTHOGRAPHIC,
+      element: element2,
+      defaultOptions: {
+        orientation: Enums.OrientationAxis.SAGITTAL,
+        background: <Types.Point3>[0, 0, 0],
+      },
+    },
+    {
+      viewportId: viewportId3,
+      type: ViewportType.ORTHOGRAPHIC,
+      element: element3,
+      defaultOptions: {
+        orientation: Enums.OrientationAxis.CORONAL,
+        background: <Types.Point3>[0, 0, 0],
+      },
+    },
   ];
 
   renderingEngine.setViewports(viewportInputArray);
 
   toolGroup.addViewport(viewportId1, renderingEngineId);
-  // toolGroup.addViewport(viewportId2, renderingEngineId);
-  // toolGroup.addViewport(viewportId3, renderingEngineId);
+  toolGroup.addViewport(viewportId2, renderingEngineId);
+  toolGroup.addViewport(viewportId3, renderingEngineId);
 
   // Set the volume to load
   volume.load();
@@ -502,15 +334,9 @@ async function run() {
   await setVolumesForViewports(
     renderingEngine,
     [{ volumeId, callback: setCtTransferFunctionForVolumeActor }],
-    [
-      viewportId1,
-      // viewportId2,
-      // viewportId3
-    ]
+    [viewportId1, viewportId2, viewportId3]
   );
 
-  segmentation.segmentIndex.setActiveSegmentIndex(segmentationId, 3);
-  segmentation.segmentIndex.setActiveSegmentIndex(segmentationId, 4);
   segmentation.segmentIndex.setActiveSegmentIndex(segmentationId, 1);
 
   // Add the segmentation representation to the toolgroup
@@ -522,25 +348,7 @@ async function run() {
   ]);
 
   // Render the image
-  renderingEngine.renderViewports([
-    viewportId1,
-    // viewportId2,
-    // viewportId3
-  ]);
-
-  // setTimeout(() => activatePreviewWithoutHovering(), 50);
+  renderingEngine.renderViewports([viewportId1, viewportId2, viewportId3]);
 }
 
 run();
-
-function activatePreviewWithoutHovering() {
-  // Get the tool group
-  const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
-
-  // Get the ThresholdCircle tool instance
-  const brushTool = toolGroup.getToolInstance(
-    brushInstanceNames.ThresholdCircle
-  );
-
-  void brushTool.manualPreview(element1);
-}
