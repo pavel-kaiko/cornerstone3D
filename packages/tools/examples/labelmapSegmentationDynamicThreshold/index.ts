@@ -35,12 +35,7 @@ const {
   RectangleScissorsTool,
   SphereScissorsTool,
   CircleScissorsTool,
-  BrushTool,
   PaintFillTool,
-  PanTool,
-  ZoomTool,
-  StackScrollTool,
-  StackScrollMouseWheelTool,
   utilities: cstUtils,
 } = cornerstoneTools;
 

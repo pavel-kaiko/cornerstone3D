@@ -394,7 +394,7 @@ class BrushTool extends BaseTool {
       };
     }
 
-    this.configuration.brushSize = 1000;
+    // this.configuration.brushSize = 1000;
 
     this._previewData.element = element;
     const enabledElement = getEnabledElement(this._previewData.element);
@@ -418,11 +418,15 @@ class BrushTool extends BaseTool {
     const activeSegmentationRepresentation =
       activeSegmentation.getActiveSegmentationRepresentation(toolGroupId);
 
+    console.log('Manual preview');
+
     this._previewData.preview = this.applyActiveStrategyCallback(
       enabledElement,
       this.getOperationData(this._previewData.element),
       StrategyCallbacks.Preview
     );
+
+    console.log('Manual preview 2');
 
     this._calculateCursor(this._previewData.element, canvasCenter);
 
@@ -432,7 +436,7 @@ class BrushTool extends BaseTool {
 
     this._previewData.timer = null;
 
-    const timer = window.setTimeout(this.previewCallback, 250);
+    const timer = window.setTimeout(this.previewCallback, 100);
 
     Object.assign(this._previewData, {
       timerStart: Date.now(),

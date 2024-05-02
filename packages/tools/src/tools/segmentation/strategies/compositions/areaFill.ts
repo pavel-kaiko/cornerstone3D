@@ -10,6 +10,8 @@ import StrategyCallbacks from '../../../../enums/StrategyCallbacks';
  */
 export default {
   [StrategyCallbacks.Fill]: (operationData: InitializedOperationData) => {
+    console.log('Filling area');
+
     const {
       segmentsLocked,
       segmentationImageData,
@@ -38,5 +40,7 @@ export default {
       callback,
       segmentationVoxelManager.boundsIJK
     );
+
+    console.log('Filling area END');
   },
 };
