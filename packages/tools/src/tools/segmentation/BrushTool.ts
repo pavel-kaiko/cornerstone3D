@@ -213,13 +213,37 @@ class BrushTool extends BaseTool {
       ] as LabelmapSegmentationDataVolume;
       const actors = viewport.getActors();
 
-      // Note: For tools that need the source data. Assumed to use
-      // First volume actor for now.
-      const firstVolumeActorUID = actors[0].uid;
+      const isStackViewport = viewport instanceof StackViewport;
+
+      if (isStackViewport) {
+        const event = new CustomEvent(Enums.Events.ERROR_EVENT, {
+          detail: {
+            type: 'Segmentation',
+            message: 'Cannot perform brush operation on the selected viewport',
+          },
+          cancelable: true,
+        });
+        eventTarget.dispatchEvent(event);
+        return null;
+      }
+
+      // we used to take the first actor here but we should take the one that is
+      // probably the same size as the segmentation volume
+      const volumes = actors.map((actorEntry) =>
+        cache.getVolume(actorEntry.referenceId)
+      );
+
+      const segmentationVolume = cache.getVolume(volumeId);
+
+      const referencedVolumeIdToThreshold =
+        volumes.find((volume) =>
+          csUtils.isEqual(volume.dimensions, segmentationVolume.dimensions)
+        )?.volumeId || volumes[0]?.volumeId;
 
       return {
         volumeId,
-        referencedVolumeId: firstVolumeActorUID,
+        referencedVolumeId:
+          this.configuration.thresholdVolumeId ?? referencedVolumeIdToThreshold,
         segmentsLocked,
         segmentationRepresentationUID,
       };
@@ -394,7 +418,7 @@ class BrushTool extends BaseTool {
       };
     }
 
-    // this.configuration.brushSize = 1000;
+    this.configuration.brushSize = 1000;
 
     this._previewData.element = element;
     const enabledElement = getEnabledElement(this._previewData.element);
@@ -418,15 +442,11 @@ class BrushTool extends BaseTool {
     const activeSegmentationRepresentation =
       activeSegmentation.getActiveSegmentationRepresentation(toolGroupId);
 
-    console.log('Manual preview');
-
     this._previewData.preview = this.applyActiveStrategyCallback(
       enabledElement,
       this.getOperationData(this._previewData.element),
       StrategyCallbacks.Preview
     );
-
-    console.log('Manual preview 2');
 
     this._calculateCursor(this._previewData.element, canvasCenter);
 
@@ -452,14 +472,11 @@ class BrushTool extends BaseTool {
     }
 
     this._previewData.timer = null;
-
-    const preview = this.applyActiveStrategyCallback(
+    this._previewData.preview = this.applyActiveStrategyCallback(
       getEnabledElement(this._previewData.element),
       this.getOperationData(this._previewData.element),
       StrategyCallbacks.Preview
     );
-
-    this._previewData.preview = preview;
   };
 
   private createHoverData(element, centerCanvas?) {

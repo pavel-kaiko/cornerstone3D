@@ -698,6 +698,7 @@ export default class ToolGroup implements IToolGroup {
     overwrite?: boolean
   ): boolean {
     const toolInstance = this._toolInstances[toolName];
+    // debugger;
     if (toolInstance === undefined) {
       console.warn(
         `Tool ${toolName} not present, can't set tool configuration.`

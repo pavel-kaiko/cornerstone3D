@@ -97,50 +97,6 @@ instructions.innerText = `
 
 content.append(instructions);
 
-const brushInstanceNames = {
-  ThresholdCircle: 'ThresholdCircle',
-  CircularBrush: 'CircularBrush',
-  CircularEraser: 'CircularEraser',
-  SphereBrush: 'SphereBrush',
-  SphereEraser: 'SphereEraser',
-  ScissorsEraser: 'ScissorsEraser',
-};
-
-const brushStrategies = {
-  [brushInstanceNames.CircularBrush]: 'FILL_INSIDE_CIRCLE',
-  [brushInstanceNames.CircularEraser]: 'ERASE_INSIDE_CIRCLE',
-  [brushInstanceNames.SphereBrush]: 'FILL_INSIDE_SPHERE',
-  [brushInstanceNames.SphereEraser]: 'ERASE_INSIDE_SPHERE',
-  [brushInstanceNames.ThresholdCircle]: 'THRESHOLD_INSIDE_CIRCLE',
-  [brushInstanceNames.ScissorsEraser]: 'ERASE_INSIDE',
-};
-
-const brushValues = [
-  brushInstanceNames.ThresholdCircle,
-  brushInstanceNames.CircularBrush,
-  brushInstanceNames.CircularEraser,
-  brushInstanceNames.SphereBrush,
-  brushInstanceNames.SphereEraser,
-];
-
-const optionsValues = [
-  ...brushValues,
-  RectangleScissorsTool.toolName,
-  CircleScissorsTool.toolName,
-  SphereScissorsTool.toolName,
-  brushInstanceNames.ScissorsEraser,
-  PaintFillTool.toolName,
-];
-
-const previewColors = {
-  0: [255, 255, 255, 128],
-  1: [0, 255, 255, 255],
-};
-const preview = {
-  enabled: false,
-  previewColors,
-};
-
 // ============================= //
 addDropdownToToolbar({
   options: { map: labelmapTools.toolMap },

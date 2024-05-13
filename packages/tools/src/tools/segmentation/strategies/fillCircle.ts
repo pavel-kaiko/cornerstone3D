@@ -15,9 +15,9 @@ const CIRCLE_STRATEGY = new BrushStrategy(
 
 const CIRCLE_THRESHOLD_STRATEGY = new BrushStrategy(
   'CircleThreshold',
-  compositions.areaFill,
+  compositions.regionFill,
   compositions.setValue,
-  initializeArea,
+  initializeCircle,
   compositions.determineSegmentIndex,
   compositions.dynamicThreshold,
   compositions.threshold,
@@ -54,8 +54,8 @@ const fillInsideCircle = CIRCLE_STRATEGY.strategyFunction;
 const thresholdInsideCircle = CIRCLE_THRESHOLD_STRATEGY.strategyFunction;
 
 /**
- * Fill inside the circular region segment inside the segmentation defined by the operationData.
- * It fills the segmentation pixels inside the defined circle.
+ * Fill segment inside the area inside the segmentation defined by the operationData.
+ * It fills the segmentation pixels inside the viewport area.
  * @param enabledElement - The element for which the segment is being erased.
  * @param operationData - EraseOperationData
  */

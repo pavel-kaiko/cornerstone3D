@@ -10,8 +10,6 @@ import StrategyCallbacks from '../../../../enums/StrategyCallbacks';
  */
 export default {
   [StrategyCallbacks.Fill]: (operationData: InitializedOperationData) => {
-    console.log('Filling Region Start');
-
     const {
       segmentsLocked,
       segmentationImageData,
