@@ -168,7 +168,8 @@ export default class BrushStrategy {
       return;
     }
 
-    const { strategySpecificConfiguration = {}, centerIJK } = initializedData;
+    const { strategySpecificConfiguration = {}, centerIJK = [] } =
+      initializedData;
     // Store the center IJK location so that we can skip an immediate same-point update
     // TODO - move this to the BrushTool
     if (csUtils.isEqual(centerIJK, strategySpecificConfiguration.centerIJK)) {

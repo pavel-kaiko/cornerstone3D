@@ -6,6 +6,7 @@ import {
   volumeLoader,
   ProgressiveRetrieveImages,
   utilities,
+  getEnabledElement,
 } from '@cornerstonejs/core';
 import {
   initDemo,
@@ -154,6 +155,16 @@ addButtonToToolbar({
     const activeName = toolGroup.getActivePrimaryMouseButtonTool();
     const brush = toolGroup.getToolInstance(activeName);
     brush.rejectPreview?.(element1);
+  },
+});
+
+addButtonToToolbar({
+  title: 'Manual Preview',
+  onClick: () => {
+    const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+    const activeName = toolGroup.getActivePrimaryMouseButtonTool();
+    const brush = toolGroup.getToolInstance(activeName);
+    brush.manualPreview?.(element1);
   },
 });
 

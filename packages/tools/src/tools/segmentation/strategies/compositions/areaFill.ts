@@ -10,6 +10,8 @@ import StrategyCallbacks from '../../../../enums/StrategyCallbacks';
  */
 export default {
   [StrategyCallbacks.Fill]: (operationData: InitializedOperationData) => {
+    console.log('Filling area');
+
     const {
       segmentsLocked,
       segmentationImageData,
@@ -17,7 +19,6 @@ export default {
       previewVoxelManager: previewVoxelManager,
       imageVoxelManager: imageVoxelManager,
       brushStrategy,
-      centerIJK,
     } = operationData;
     const isWithinThreshold =
       brushStrategy.createIsInThreshold?.(operationData);
@@ -39,7 +40,5 @@ export default {
       callback,
       segmentationVoxelManager.boundsIJK
     );
-
-    // previewVoxelManager.addPoint(centerIJK);
   },
 };
