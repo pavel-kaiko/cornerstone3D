@@ -31,20 +31,6 @@ export const initializeArea = {
     operationData.centerWorld = center as Types.Point3;
     operationData.centerIJK = center as Types.Point3;
 
-    const topLeftCanvas = [0, 0] as Types.Point2;
-    const bottomRightCanvas = [
-      viewport.canvas.clientWidth,
-      viewport.canvas.clientHeight,
-    ] as Types.Point2;
-
-    // 2. Find the extent of the ellipse (circle) in IJK index space of the image
-    const topLeftWorld = viewport.canvasToWorld(topLeftCanvas);
-    const bottomRightWorld = viewport.canvasToWorld(bottomRightCanvas);
-
-    // debugger;
-
-    console.log('points', points);
-    console.log('viewport.options.orientation', viewport.options.orientation);
     const [xSize, ySize, zSize] = segmentationImageData.getDimensions();
 
     const circleCornersIJK = points.map((world, index) => {
