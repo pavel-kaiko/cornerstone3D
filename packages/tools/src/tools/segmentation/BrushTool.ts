@@ -390,14 +390,25 @@ class BrushTool extends BaseTool {
     this.configuration.preview.isManualPreviewEnabled = isManualPreviewEnabled;
   };
 
-  manualPreview = (element: HTMLDivElement) => {
+  manualPreview = (
+    element: HTMLDivElement,
+    {
+      brushSize,
+      isCenterIJKDisabled,
+    }: {
+      brushSize?: number;
+      isCenterIJKDisabled?: boolean;
+    }
+  ) => {
     // If a preview operation is in progress, cancel it
     if (this._previewData.timer) {
       window.clearTimeout(this._previewData.timer);
       this._previewData.timer = null;
     }
 
-    this.configuration.preview.enabled = true;
+    if (!this.configuration.preview.enabled) {
+      this.configuration.preview.enabled = true;
+    }
 
     if (this._previewData.preview && this._previewData.element) {
       try {
@@ -418,7 +429,10 @@ class BrushTool extends BaseTool {
       };
     }
 
-    this.configuration.brushSize = 1000;
+    // If provided set custom brush size
+    if (brushSize > 0) {
+      this.configuration.brushSize = brushSize;
+    }
 
     this._previewData.element = element;
     const enabledElement = getEnabledElement(this._previewData.element);
@@ -437,16 +451,13 @@ class BrushTool extends BaseTool {
       canvasCenter
     );
 
-    const toolGroupId = this.toolGroupId;
+    const operationData = this.getOperationData(this._previewData.element);
 
-    const activeSegmentationRepresentation =
-      activeSegmentation.getActiveSegmentationRepresentation(toolGroupId);
-
-    this._previewData.preview = this.applyActiveStrategyCallback(
-      enabledElement,
-      this.getOperationData(this._previewData.element),
-      StrategyCallbacks.Preview
-    );
+    // this._previewData.preview = this.applyActiveStrategyCallback(
+    //   enabledElement,
+    //   Object.assign({}, operationData, { disableCenterIJK: true }),
+    //   StrategyCallbacks.Preview
+    // );
 
     this._calculateCursor(this._previewData.element, canvasCenter);
 
@@ -643,6 +654,7 @@ class BrushTool extends BaseTool {
         this.configuration.strategySpecificConfiguration,
       // Provide the preview information so that data can be used directly
       preview: this._previewData?.preview,
+      isCenterIJKDisabled: this.configuration.preview.isManualPreviewEnabled,
     };
     return operationData;
   }

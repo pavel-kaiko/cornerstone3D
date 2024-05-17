@@ -17,7 +17,7 @@ export type InitializedOperationData = LabelmapToolOperationDataAny & {
   // Additional data for performing the strategy
   enabledElement: Types.IEnabledElement;
   centerIJK?: Types.Point3;
-  disableCenterIJK?: boolean;
+  isCenterIJKDisabled?: boolean;
   centerWorld: Types.Point3;
   viewport: Types.IViewport;
   imageVoxelManager:
