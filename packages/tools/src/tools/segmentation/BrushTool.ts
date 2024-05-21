@@ -288,7 +288,7 @@ class BrushTool extends BaseTool {
   preMouseDownCallback = (
     evt: EventTypes.MouseDownActivateEventType
   ): boolean => {
-    if (this.configuration.preview.isManualPreviewEnabled) {
+    if (this.configuration.preview.isHoverPreviewDisabled) {
       return;
     }
 
@@ -344,7 +344,7 @@ class BrushTool extends BaseTool {
    * The preview also needs to be cancelled on changing tools.
    */
   mouseMoveCallback = (evt: EventTypes.InteractionEventType): void => {
-    if (this.configuration.preview.isManualPreviewEnabled) {
+    if (this.configuration.preview.isHoverPreviewDisabled) {
       return;
     }
 
@@ -390,16 +390,27 @@ class BrushTool extends BaseTool {
     this.configuration.preview.isManualPreviewEnabled = isManualPreviewEnabled;
   };
 
-  manualPreview = (
-    element: HTMLDivElement,
-    {
-      brushSize,
-      isCenterIJKDisabled,
-    }: {
-      brushSize?: number;
-      isCenterIJKDisabled?: boolean;
-    }
-  ) => {
+  getManualPreviewMode = () => {
+    return this.configuration.preview.isManualPreviewEnabled;
+  };
+
+  enableCenterIJKPreview = () => {
+    this.configuration.preview.isCenterIJKDisabled = false;
+  };
+
+  disableCenterIJKPreview = () => {
+    this.configuration.preview.isCenterIJKDisabled = true;
+  };
+
+  enableHoverPreview = () => {
+    this.configuration.preview.isHoverPreviewDisabled = false;
+  };
+
+  disableHoverPreview = () => {
+    this.configuration.preview.isHoverPreviewDisabled = true;
+  };
+
+  manualPreview = (element: HTMLDivElement) => {
     // If a preview operation is in progress, cancel it
     if (this._previewData.timer) {
       window.clearTimeout(this._previewData.timer);
@@ -427,11 +438,6 @@ class BrushTool extends BaseTool {
         startPoint: [NaN, NaN],
         isDrag: false,
       };
-    }
-
-    // If provided set custom brush size
-    if (brushSize > 0) {
-      this.configuration.brushSize = brushSize;
     }
 
     this._previewData.element = element;
@@ -654,7 +660,7 @@ class BrushTool extends BaseTool {
         this.configuration.strategySpecificConfiguration,
       // Provide the preview information so that data can be used directly
       preview: this._previewData?.preview,
-      isCenterIJKDisabled: this.configuration.preview.isManualPreviewEnabled,
+      isCenterIJKDisabled: this.configuration.preview.isCenterIJKDisabled,
     };
     return operationData;
   }
