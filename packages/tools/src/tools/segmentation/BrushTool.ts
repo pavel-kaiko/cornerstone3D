@@ -451,6 +451,14 @@ class BrushTool extends BaseTool {
       canvasCenter
     );
 
+    const operationData = this.getOperationData(this._previewData.element);
+
+    this._previewData.preview = this.applyActiveStrategyCallback(
+      enabledElement,
+      operationData,
+      StrategyCallbacks.Preview
+    );
+
     this._calculateCursor(this._previewData.element, canvasCenter);
 
     if (!this._hoverData) {
